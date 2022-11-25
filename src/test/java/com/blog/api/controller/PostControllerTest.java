@@ -4,7 +4,6 @@ import com.blog.api.domain.Post;
 import com.blog.api.repository.PostRepository;
 import com.blog.api.request.PostCreate;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,8 +13,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -175,8 +178,8 @@ class PostControllerTest {
 
         // expected
         mockMvc.perform(MockMvcRequestBuilders.get("/posts")
-                .contentType(APPLICATION_JSON)
-        )
+                        .contentType(APPLICATION_JSON)
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()", is(2)))
                 .andExpect(jsonPath("$[0].id").value(post1.getId()))
@@ -185,6 +188,87 @@ class PostControllerTest {
                 .andExpect(jsonPath("$[1].id").value(post2.getId()))
                 .andExpect(jsonPath("$[1].title").value(post2.getTitle()))
                 .andExpect(jsonPath("$[1].content").value(post2.getContent()))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("paging을 이용한 여러건 조회 (spring data jpa)")
+    void getListPaging() throws Exception {
+
+        // given
+        List<Post> postRequest = IntStream.range(1, 31)
+                .mapToObj(i -> {
+                    return Post.builder()
+                            .title("블로그 제목 " + i)
+                            .content("반포 자이 " + i)
+                            .build();
+                })
+                .collect(Collectors.toList());
+        postRepository.saveAll(postRequest);
+
+        // expected
+        mockMvc.perform(MockMvcRequestBuilders.get("/v1/posts?page=0&size=10")
+                        .contentType(APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()", is(10)))
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].title").value("블로그 제목 1"))
+                .andExpect(jsonPath("$[0].content").value("반포 자이 1"))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("여러건 조회 (querydsl)")
+    void getListQuerydslPaging() throws Exception {
+
+        // given
+        List<Post> postRequest = IntStream.range(1, 31)
+                .mapToObj(i -> {
+                    return Post.builder()
+                            .title("블로그 제목 " + i)
+                            .content("반포 자이 " + i)
+                            .build();
+                })
+                .collect(Collectors.toList());
+        postRepository.saveAll(postRequest);
+
+        // expected
+        mockMvc.perform(MockMvcRequestBuilders.get("/v2/posts?page=1&size=10")
+                        .contentType(APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()", is(10)))
+                .andExpect(jsonPath("$[0].id").value(20))
+                .andExpect(jsonPath("$[0].title").value("블로그 제목 20"))
+                .andExpect(jsonPath("$[0].content").value("반포 자이 20"))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("여러건 조회 (PostSearch + querydsl)")
+    void getListPostSearchPaging() throws Exception {
+
+        // given
+        List<Post> postRequest = IntStream.range(1, 31)
+                .mapToObj(i -> {
+                    return Post.builder()
+                            .title("블로그 제목 " + i)
+                            .content("반포 자이 " + i)
+                            .build();
+                })
+                .collect(Collectors.toList());
+        postRepository.saveAll(postRequest);
+
+        // expected
+        mockMvc.perform(MockMvcRequestBuilders.get("/v3/posts?page=3&size=10")
+                        .contentType(APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()", is(10)))
+                .andExpect(jsonPath("$[0].id").value(10))
+                .andExpect(jsonPath("$[0].title").value("블로그 제목 10"))
+                .andExpect(jsonPath("$[0].content").value("반포 자이 10"))
                 .andDo(print());
     }
 
