@@ -6,7 +6,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Builder
-@Getter @Setter
+@Getter
+@Setter
 @ToString
 public class PostSearch {
 

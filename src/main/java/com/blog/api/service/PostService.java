@@ -64,7 +64,7 @@ public class PostService {
 
     public List<PostResponse> getListPostSearchPaging(PostSearch postSearch) {
         return postRepository.getListPostSearchPaging(postSearch).stream()
-                .map(p -> new PostResponse(p))
+                .map(PostResponse::new)
                 .collect(Collectors.toList());
     }
 }
