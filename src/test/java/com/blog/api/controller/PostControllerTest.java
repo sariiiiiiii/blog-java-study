@@ -292,9 +292,9 @@ class PostControllerTest {
 
         //expected
         mockMvc.perform(MockMvcRequestBuilders.patch("/posts/{postId}", requestPost.getId())
-                .contentType(APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(postEdit))
-        )
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(postEdit))
+                )
                 .andExpect(status().isOk())
                 .andDo(print());
     }
@@ -311,11 +311,38 @@ class PostControllerTest {
 
         //expected
         mockMvc.perform(MockMvcRequestBuilders.delete("/posts/{postId}", post.getId())
-                .contentType(APPLICATION_JSON)
-        )
+                        .contentType(APPLICATION_JSON)
+                )
                 .andExpect(status().isOk())
                 .andDo(print());
+    }
 
+    @Test
+    @DisplayName("존재하지 않는 글 조회")
+    void getPostNotFound() throws Exception {
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/posts/v2/{postId}", 1L)
+                        .contentType(APPLICATION_JSON)
+                )
+                .andExpect(status().isNotFound())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("게시글 작성시 바보는 포함될 수 없다")
+    void postInvalidRequest() throws Exception {
+
+        PostCreate request = PostCreate.builder()
+                .title("바보사리")
+                .content("반포자이")
+                .build();
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/v2/test")
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                )
+                .andExpect(status().isBadRequest())
+                .andDo(print());
     }
 
 }

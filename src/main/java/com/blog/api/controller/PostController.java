@@ -37,6 +37,12 @@ public class PostController {
         return postService.getList();
     }
 
+    // PostNotFound 활용
+    @GetMapping("/posts/v2/{postId}")
+    public PostResponse get2(@PathVariable("postId") Long id) {
+        return postService.get2(id);
+    }
+
     // paging 처리용 여러건 조회(spring data jpa)
     @GetMapping("/v1/posts")
     public List<PostResponse> getListPaging(Pageable pageable) {
@@ -64,6 +70,13 @@ public class PostController {
     public Map<String, String> test(@RequestBody @Valid PostCreate postCreate) {
         postService.write(postCreate);
         return Map.of();
+    }
+
+    // invalidException 활용
+    @PostMapping("/v2/test")
+    public void invalidPost(@RequestBody @Valid PostCreate postCreate) {
+        postCreate.validate();
+        postService.write(postCreate);
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.blog.api.service;
 
 import com.blog.api.domain.Post;
+import com.blog.api.exception.PostNotFound;
 import com.blog.api.repository.PostRepository;
 import com.blog.api.request.PostCreate;
 import com.blog.api.request.PostEdit;
@@ -222,7 +223,24 @@ class PostServiceTest {
 
         //then
         assertEquals(0, postRepository.count());
+    }
 
+    @Test
+    @DisplayName("존재하지 않는 글 조회")
+    void getPostNotFound() {
+
+        Post post = Post.builder()
+                .title("사리")
+                .content("반포자이")
+                .build();
+
+        postRepository.save(post);
+
+        PostNotFound e = assertThrows(PostNotFound.class, () -> {
+            postService.get2(post.getId() + 1L);
+        }, "예외처리가 잘못되었습니다.");
+
+        assertEquals("존재하지 않는 글입니다.", e.getMessage());
     }
 
 }
