@@ -2,6 +2,7 @@ package com.blog.api.controller;
 
 import com.blog.api.domain.Post;
 import com.blog.api.request.PostCreate;
+import com.blog.api.request.PostEdit;
 import com.blog.api.request.PostSearch;
 import com.blog.api.response.PostResponse;
 import com.blog.api.service.PostService;
@@ -63,6 +64,20 @@ public class PostController {
     public Map<String, String> test(@RequestBody @Valid PostCreate postCreate) {
         postService.write(postCreate);
         return Map.of();
+    }
+
+    /**
+     * client에서 수정된 data와 기존의 data를 같이 보내게 될 경우 @Valid check 및 PostEdit 클리스에 validation annotation 추가 (@NotBlank)
+     * 수정된 정보를 반환을 해주지 말지는 client와 협의
+     */
+    @PatchMapping("/posts/{postId}")
+    public PostResponse edit(@PathVariable("postId") Long id, @RequestBody PostEdit postEdit) {
+        return postService.edit(id, postEdit);
+    }
+
+    @DeleteMapping("/posts/{postId}")
+    public void delete(@PathVariable("postId") Long id) {
+        postService.delete(id);
     }
 
 }

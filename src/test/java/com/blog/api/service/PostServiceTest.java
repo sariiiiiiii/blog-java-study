@@ -3,6 +3,7 @@ package com.blog.api.service;
 import com.blog.api.domain.Post;
 import com.blog.api.repository.PostRepository;
 import com.blog.api.request.PostCreate;
+import com.blog.api.request.PostEdit;
 import com.blog.api.request.PostSearch;
 import com.blog.api.response.PostResponse;
 import org.junit.jupiter.api.Assertions;
@@ -179,6 +180,48 @@ class PostServiceTest {
         assertEquals(20, response.get(0).getId());
         assertEquals("블로그 제목 20", response.get(0).getTitle());
         assertEquals("반포 자이 20", response.get(0).getContent());
+    }
+
+    @Test
+    @DisplayName("게시글 수정")
+    void modifiedPost() throws Exception {
+        //given
+        Post post = Post.builder()
+                .title("사리")
+                .content("반포자이")
+                .build();
+
+        postRepository.save(post);
+
+        PostEdit postEdit = PostEdit.builder()
+                .title("사리맨")
+                .content("자이반포")
+                .build();
+        //when
+        postService.edit(post.getId(), postEdit);
+
+        //then
+        Post findPost = postRepository.findById(post.getId())
+                .orElseThrow(() -> new IllegalArgumentException("존재 하지 않는 글입니다 id = " + post.getId()));
+        assertEquals("사리맨", findPost.getTitle());
+        assertEquals("자이반포", findPost.getContent());
+    }
+
+    @Test
+    @DisplayName("글 삭제")
+    void postDelete() throws Exception {
+        //given
+        Post post = Post.builder()
+                .title("사리")
+                .content("자이반포")
+                .build();
+        postRepository.save(post);
+
+        //when
+        postService.delete(post.getId());
+
+        //then
+        assertEquals(0, postRepository.count());
 
     }
 

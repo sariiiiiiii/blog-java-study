@@ -3,6 +3,7 @@ package com.blog.api.controller;
 import com.blog.api.domain.Post;
 import com.blog.api.repository.PostRepository;
 import com.blog.api.request.PostCreate;
+import com.blog.api.request.PostEdit;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -270,6 +272,50 @@ class PostControllerTest {
                 .andExpect(jsonPath("$[0].title").value("블로그 제목 10"))
                 .andExpect(jsonPath("$[0].content").value("반포 자이 10"))
                 .andDo(print());
+    }
+
+    @Test
+    @DisplayName("게시글 수정")
+    void edit() throws Exception {
+        //given
+        Post requestPost = Post.builder()
+                .title("사리")
+                .content("반포자이")
+                .build();
+
+        postRepository.save(requestPost);
+
+        PostEdit postEdit = PostEdit.builder()
+                .title("사리맨")
+                .content("자이반포")
+                .build();
+
+        //expected
+        mockMvc.perform(MockMvcRequestBuilders.patch("/posts/{postId}", requestPost.getId())
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(postEdit))
+        )
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("글 삭제")
+    void postDelete() throws Exception {
+        //given
+        Post post = Post.builder()
+                .title("사리")
+                .content("반포자이")
+                .build();
+        postRepository.save(post);
+
+        //expected
+        mockMvc.perform(MockMvcRequestBuilders.delete("/posts/{postId}", post.getId())
+                .contentType(APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andDo(print());
+
     }
 
 }
