@@ -58,10 +58,16 @@ asciidoctor {
 
 // 생성된 문서를 프로젝트의 jar 파일에 패키징
 bootJar {
+	enabled = true
 	dependsOn asciidoctor
 
 	copy {
 		from asciidoctor.outputDir
 		into "src/main/resources/static/docs"
 	}
+}
+
+// build시 SNAPSHOP-plain.jar 생성 방지 (라이브러리가 포함이 안된 기본 java jar 파일)
+jar {
+	enabled = false
 }

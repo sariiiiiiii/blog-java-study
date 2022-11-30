@@ -4,6 +4,7 @@ import com.blog.api.domain.Post;
 import com.blog.api.repository.PostRepository;
 import com.blog.api.request.PostCreate;
 import com.blog.api.request.PostEdit;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -340,6 +341,52 @@ class PostControllerTest {
                 )
                 .andExpect(status().isBadRequest())
                 .andDo(print());
+    }
+
+    @Test
+    @DisplayName("가장 기본적인 요청 인증값 확인 (GET Parameter)")
+    void getParameterAuthorization() throws Exception {
+        // given
+        PostCreate request = PostCreate.builder()
+                .title("사리")
+                .content("내용")
+                .build();
+
+        String json = objectMapper.writeValueAsString(request);
+
+        // when
+        mockMvc.perform(MockMvcRequestBuilders.post("/v3/test?authorization=sari")
+                        .contentType(APPLICATION_JSON)
+                        .content(json)
+                )
+                .andExpect(status().isOk())
+                .andDo(print());
+
+        // then
+        assertEquals(1L, postRepository.count());
+    }
+
+    @Test
+    @DisplayName("가장 기본적인 요청 인증값 확인 (Header)")
+    void headerAuthorization() throws Exception {
+        // given
+        PostCreate request = PostCreate.builder()
+                .title("사리")
+                .content("내용")
+                .build();
+
+        String json = objectMapper.writeValueAsString(request);
+
+        // when
+        mockMvc.perform(MockMvcRequestBuilders.post("/v4/test")
+                        .header("authorization", "header")
+                        .contentType(APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isOk())
+                .andDo(print());
+
+        // then
+        assertEquals(1L, postRepository.count());
     }
 
 }

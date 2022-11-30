@@ -74,9 +74,38 @@ public class PostController {
 
     // invalidException 활용
     @PostMapping("/v2/test")
-    public void invalidPost(@RequestBody @Valid PostCreate postCreate) {
+    public void invalidPost(@RequestBody @Valid PostCreate postCreate, @RequestParam("authorization") String authorization) {
+        // 인증
+        // 1. GET Parameter -> (많이 쓰긴하는데 좋은 방법은 아님...)
+        // 2. POST(Body) value -> PostCreate의 설계가 무너지게 됨 (PostCreate의 인증관련을 받을 수 없으니까 글 작성과는 무관함... 좋은 방법 아님)
+        // 3. Header
         postCreate.validate();
         postService.write(postCreate);
+    }
+
+    /**
+     * 인증 방식 ->
+     * 1. GET Parameter -> (많이 쓰긴하는데 좋은 방법은 아님...)
+     * 2. POST(Body) value -> PostCreate의 설계가 무너지게 됨 (PostCreate의 인증관련을 받을 수 없으니까 글 작성과는 무관함... 좋은 방법 아님)
+     * 3. Header
+     */
+
+    // 로그인 인증구현 GET Parameter(@RequestParam)
+    @PostMapping("/v3/test")
+    public void getParameterAuthorization(@RequestBody @Valid PostCreate postCreate, @RequestParam String authorization) {
+        if ("sari".equals(authorization)) {
+            postCreate.validate();
+            postService.write(postCreate);
+        }
+    }
+
+    // 로그인 인증구현 Header(@RequestHeader)
+    @PostMapping("/v4/test")
+    public void headerAuthorization(@RequestBody @Valid PostCreate postCreate, @RequestHeader String authorization) {
+        if ("sari".equals(authorization)) {
+            postCreate.validate();
+            postService.write(postCreate);
+        }
     }
 
     /**
