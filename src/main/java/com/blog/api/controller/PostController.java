@@ -1,5 +1,6 @@
 package com.blog.api.controller;
 
+import com.blog.api.config.data.UserSession;
 import com.blog.api.domain.Post;
 import com.blog.api.request.PostCreate;
 import com.blog.api.request.PostEdit;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +23,18 @@ import java.util.Map;
 public class PostController {
 
     private final PostService postService;
+
+    @GetMapping("/foo")
+    public String foo(HttpServletRequest request, @RequestAttribute("userName") String userName) {
+        log.info("username => {}", userName);
+        return "foo";
+    }
+
+    @GetMapping("/bar")
+    public Long bar(UserSession userSession) {
+        log.info("userSession => {}", userSession.id);
+        return userSession.id;
+    }
 
     @GetMapping("/get")
     public String hello() {
